@@ -9,10 +9,12 @@ class Block:
         self.x = x
         self.y = y
         self.color = (246, 33, 33)
-        self.isFallAble = True
 
     def fall(self):
         self.y += 1
+
+    def shift(self, x):
+        self.x += x
 
     def draw(self, screen):
         x = Const.X_LEFT + self.x*Const.SQUARE_SIDE

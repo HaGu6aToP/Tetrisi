@@ -6,6 +6,7 @@ class MainScreen:
     def __init__(self) -> None:
         self.screen = pygame.display.set_mode((Const.SCREEN_WIDTH, Const.SCREEN_HEIGHT))
         self.blocks = []
+        self.fallingBlocks = []
  
     def __drawCell(self, x, y):
         cell = pygame.Rect(x, y, Const.SQUARE_SIDE, Const.SQUARE_SIDE)
@@ -36,33 +37,45 @@ class MainScreen:
         for block in self.blocks:
             block.draw(self.screen)
 
+        for block in self.fallingBlocks:
+            block.draw(self.screen)
+
     def createNewFigure(self):
         # self.blocks += sorted(FigureFabric.next(), key=lambda x: x.y, reverse=True)
-        self.blocks += FigureFabric.next()
+        self.fallingBlocks += FigureFabric.next()
         
 
     def  __isEmptyBellow(self, x, y):
         y = y+1
         for block in self.blocks:
-            if not block.isFallAble and block.y == y and block.x == x:
+            if block.y == y and block.x == x:
                 return False
         return True
         
+    def shift(self, s=0):
+        for block in self.fallingBlocks:
+            if s == -1:
+                if block.x > 0:
+                    block.shift(s)
+            if s == 1:
+                if block.x < Const.WIDTH - 1:
+                    block.shift(s)
 
-    def update(self, shift=0):
-        for block in self.blocks:
-            if block.isFallAble:
-                if self.__isEmptyBellow(block.x, block.y):
-                    if block.y < Const.HEIGHT - 1:
-                        block.fall()
-                        if shift==-1:
-                            if block.x > 0:
-                                block.x -= 1
-                        if shift==1:
-                            if block.x < Const.WIDTH - 1:
-                                block.x += 1
-                        continue
-            else:
-                continue
-            block.isFallAble = False
+    def fall(self):
+        falling = True
+        for block in self.fallingBlocks:
+            if self.__isEmptyBellow(block.x, block.y):
+                if block.y < Const.HEIGHT - 1:
+                    continue
+            falling = False
+            break
+
+        if not falling:           
+            self.blocks += self.fallingBlocks
+            self.fallingBlocks = []
             self.createNewFigure()
+        else:
+            for block in self.fallingBlocks:
+                block.fall()
+
+
