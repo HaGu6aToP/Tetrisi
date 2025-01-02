@@ -9,7 +9,7 @@ class MainScreen:
  
     def __drawCell(self, x, y):
         cell = pygame.Rect(x, y, Const.SQUARE_SIDE, Const.SQUARE_SIDE)
-        pygame.draw.rect(self.screen, (255, 255, 255), cell, 1)
+        pygame.draw.rect(self.screen, (255, 255, 255), cell, 2)
 
         rect = pygame.Surface((Const.SQUARE_SIDE-Const.SHIFT*2, Const.SQUARE_SIDE-Const.SHIFT*2))
         rect.fill((156, 156, 156))
@@ -30,30 +30,39 @@ class MainScreen:
         pygame.draw.rect(self.screen, (255, 255, 255), rect, 1)
 
     def draw(self):
+        self.__drawGrid()
+        self.__drawScorePanel()
 
         for block in self.blocks:
             block.draw(self.screen)
 
-        self.__drawGrid()
-        self.__drawScorePanel()
-
     def createNewFigure(self):
+        # self.blocks += sorted(FigureFabric.next(), key=lambda x: x.y, reverse=True)
         self.blocks += FigureFabric.next()
+        
 
-    def  __isEmptyBellow(self, y):
+    def  __isEmptyBellow(self, x, y):
         y = y+1
         for block in self.blocks:
-            if not block.isFallAble and block.y == y:
+            if not block.isFallAble and block.y == y and block.x == x:
                 return False
         return True
         
 
-    def update(self):
+    def update(self, shift=0):
         for block in self.blocks:
             if block.isFallAble:
-                if self.__isEmptyBellow(block.y):
+                if self.__isEmptyBellow(block.x, block.y):
                     if block.y < Const.HEIGHT - 1:
                         block.fall()
+                        if shift==-1:
+                            if block.x > 0:
+                                block.x -= 1
+                        if shift==1:
+                            if block.x < Const.WIDTH - 1:
+                                block.x += 1
                         continue
-                block.isFallAble = False
-                # createNewFigure
+            else:
+                continue
+            block.isFallAble = False
+            self.createNewFigure()

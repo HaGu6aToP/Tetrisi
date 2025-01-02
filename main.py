@@ -15,6 +15,7 @@ MS.createNewFigure()
 
 past = pygame.time.get_ticks()
 tick = 1000
+shift = 0
 
 while True:
     for event in pygame.event.get():
@@ -22,15 +23,28 @@ while True:
             if event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 sys.exit()
+            if event.key == pygame.K_DOWN:
+                tick = 50
+            if event.key == pygame.K_LEFT:
+                shift = -1
+            if event.key == pygame.K_RIGHT:
+                shift = 1
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_DOWN:
+                tick = 1000
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
     
     now = pygame.time.get_ticks()
     if now - past > tick:
-        MS.update()
+        MS.update(shift)
         past = now
-
+        shift = 0
+        # for block in MS.blocks:
+        #     print(block.x, block.y)
+        # print()
+    
     MS.draw()
     pygame.display.flip()
 
