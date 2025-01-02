@@ -9,10 +9,10 @@ class Block:
         self.x = x
         self.y = y
         self.color = (246, 254, 89)
+        self.isFallAble = True
 
     def fall(self):
-        if self.y < Const.HEIGHT - 1:
-            self.y += 1
+        self.y += 1
 
     def draw(self, screen):
         x = Const.X_LEFT + self.x*Const.SQUARE_SIDE
@@ -26,16 +26,18 @@ class Block:
         rect.height -= 2*Const.SHIFT
         pygame.draw.rect(screen, self.color, rect)
 
-class Figure:
+class FigureFabric:
     p = [1/4 for i in range(4)]
+    i = 0
+
     def __getFigure():
-        t = multinomial.rvs(n=1, p=Figure.p, size=1)[0]
+        t = multinomial.rvs(n=1, p=FigureFabric.p, size=1)[0]
         return where(t==1)[0][0]
         
     def next():
         res = []
-        i = Figure.__getFigure()
-
+        i = FigureFabric.i
+        
         if i == 0:
             #  x
             #  x
@@ -68,5 +70,6 @@ class Figure:
             res.append(Block(4, 1))
             res.append(Block(6, 1))
         
+        i = FigureFabric.__getFigure()
         return res
             

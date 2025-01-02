@@ -3,15 +3,18 @@ from pygame.locals import *
 import sys
 from MainScreen import MainScreen
 
-from Figure import Block, Figure
+from FigureFabric import Block, FigureFabric
 
 pygame.init()
 
+clock = pygame.time.Clock()
+
 MS = MainScreen()
 MS.draw()
+MS.createNewFigure()
 
-
-f = Figure.next()
+past = pygame.time.get_ticks()
+tick = 1000
 
 while True:
     for event in pygame.event.get():
@@ -22,10 +25,13 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-            
+    
+    now = pygame.time.get_ticks()
+    if now - past > tick:
+        MS.update()
+        past = now
+
     MS.draw()
-    for el in f:
-        el.draw(MS.screen)
     pygame.display.flip()
 
     

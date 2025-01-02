@@ -1,9 +1,11 @@
 import pygame
 from Const import Const
+from FigureFabric import FigureFabric
 
 class MainScreen:
     def __init__(self) -> None:
         self.screen = pygame.display.set_mode((Const.SCREEN_WIDTH, Const.SCREEN_HEIGHT))
+        self.blocks = []
  
     def __drawCell(self, x, y):
         cell = pygame.Rect(x, y, Const.SQUARE_SIDE, Const.SQUARE_SIDE)
@@ -28,5 +30,30 @@ class MainScreen:
         pygame.draw.rect(self.screen, (255, 255, 255), rect, 1)
 
     def draw(self):
+
+        for block in self.blocks:
+            block.draw(self.screen)
+
         self.__drawGrid()
         self.__drawScorePanel()
+
+    def createNewFigure(self):
+        self.blocks += FigureFabric.next()
+
+    def  __isEmptyBellow(self, y):
+        y = y+1
+        for block in self.blocks:
+            if not block.isFallAble and block.y == y:
+                return False
+        return True
+        
+
+    def update(self):
+        for block in self.blocks:
+            if block.isFallAble:
+                if self.__isEmptyBellow(block.y):
+                    if block.y < Const.HEIGHT - 1:
+                        block.fall()
+                        continue
+                block.isFallAble = False
+                # createNewFigure
