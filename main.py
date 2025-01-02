@@ -3,15 +3,15 @@ from pygame.locals import *
 import sys
 from MainScreen import MainScreen
 
-from FigureFactory import Block
+from Figure import Block, Figure
 
 pygame.init()
 
 MS = MainScreen()
 MS.draw()
 
-block = Block()
-block.draw(MS.screen)
+
+f = Figure.next()
 
 while True:
     for event in pygame.event.get():
@@ -22,8 +22,10 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+            
     MS.draw()
-    block.draw(MS.screen)
+    for el in f:
+        el.draw(MS.screen)
     pygame.display.flip()
 
     
