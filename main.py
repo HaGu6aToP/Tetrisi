@@ -37,10 +37,10 @@ while True:
             pygame.quit()
             sys.exit()
     
-    # nowS = pygame.time.get_ticks()
-    # if nowS - pastS > shiftTick:
-    #     MS.shift(shift)
-    #     pastS = nowS
+    nowS = pygame.time.get_ticks()
+    if nowS - pastS > shiftTick:
+        App.shiftUpdate(shift)
+        pastS = nowS
 
     nowF = pygame.time.get_ticks()
     if nowF - pastF > fallTick:
