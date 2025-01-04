@@ -3,38 +3,38 @@ from Cell import Cell
 from FigureFabric import FigureFabric
 
 class Application:
-
-
-    def __init__(self, WIDTH = 10, HEIGHT = 20, SQUARE_SIDE = 30, SHIFT = 7, X_LEFT = 50, Y_TOP = 50, SCREEN_WIDTH = 1000, SCREEN_HEIGHT = 800, CELL_COLOR=(255, 255, 255)):
-        self.WIDTH = WIDTH
-        self.HEIGHT = HEIGHT
-        self.SQUARE_SIDE = SQUARE_SIDE
-        self.SHIFT = SHIFT
-        self.X_LEFT = X_LEFT
-        self.Y_TOP = Y_TOP
-        self.SCREEN_WIDTH = SCREEN_WIDTH
-        self.SCREEN_HEIGHT = SCREEN_HEIGHT  
-        self.CELL_COLOR = CELL_COLOR
+    def __init__(self, width=10, height=20, squareSide=30, shift=7, xLeft=50, yTop=50, screenWidth=1000, screenHeight=800, cellColor=(255, 255, 255), figureCellColor=(246, 33, 33)):
+        self.width = width
+        self.height = height
+        self.squareSide = squareSide
+        self.shift = shift
+        self.xLeft = xLeft
+        self.yTop = yTop
+        self.screenWidth = screenWidth
+        self.screenHeight = screenHeight  
+        self.cellColor = cellColor
         self.FF = FigureFabric(0, 4)
+        self.figureCellColor = figureCellColor
         
-        self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+        self.screen = pygame.display.set_mode((self.screenWidth, self.screenHeight))
         self.screen.convert_alpha()
         self.fixedCells = []
         self.fallingCells = []
-        self.cells = [[] for j in range(self.HEIGHT)]
+        self.cells = [[] for j in range(self.height)]
+        self.surfaces = [[] for j in range(self.height)]
 
-        x = self.X_LEFT
-        for i in range(self.WIDTH):
-            y = self.Y_TOP
-            for j in range(self.HEIGHT):
-                surface = pygame.Surface((self.SQUARE_SIDE-self.SHIFT*2, self.SQUARE_SIDE-self.SHIFT*2))
+        x = self.xLeft
+        for i in range(self.width):
+            y = self.yTop
+            for j in range(self.height):
+                surface = pygame.Surface((self.squareSide-self.shift*2, self.squareSide-self.shift*2))
                 surface.fill((255, 255, 255))
                 surface.set_alpha(70)
-                self.screen.blit(surface, (x+self.SHIFT, y+self.SHIFT))
-                self.cells[j].append(Cell(x, y, self.SQUARE_SIDE, self.SQUARE_SIDE, self.CELL_COLOR))
-                y += self.SQUARE_SIDE
-            x += self.SQUARE_SIDE
-
+                self.screen.blit(surface, (x+self.shift, y+self.shift))
+                self.surfaces[j].append(surface)
+                self.cells[j].append(Cell((x, y), self.squareSide, self.squareSide))
+                y += self.squareSide
+            x += self.squareSide
 
     def __drawGrid(self):
         for line in self.cells:
@@ -42,8 +42,8 @@ class Application:
                 cell.draw(self.screen)
 
     def __drawScorePanel(self):
-        rect = pygame.Rect(self.SQUARE_SIDE*self.WIDTH+self.X_LEFT, self.Y_TOP, self.SQUARE_SIDE*self.WIDTH, self.SQUARE_SIDE*self.HEIGHT/2)
-        pygame.draw.rect(self.screen, (255, 255, 255), rect, 1)
+        rect = pygame.Rect(self.squareSide*self.width+self.xLeft, self.yTop, self.squareSide*self.width, self.squareSide*self.height/2)
+        pygame.draw.rect(self.screen, (255, 255, 255), rect, 2)
 
     def drawScreen(self):
         self.__drawGrid()
@@ -51,62 +51,9 @@ class Application:
 
     def createNewFigure(self):
         self.fallingCells = self.FF.next()
-        self.__fill(self.fallingCells)
-
-    def __fill(self, cells):
-        for (x, y, color) in cells:
-            self.cells[y][x].filled = True
-            self.cells[y][x].color = color
-
-    def __clear(self, cells):
-        for (x, y, color) in cells:
-            self.cells[y][x].filled = False
-            self.cells[y][x].color = self.CELL_COLOR
-
-    def __shift(self, cells, direction):
-        for cell in cells:
-            self.cells[cell[1]][cell[0]].filled = False
-            self.cells[cell[1]][cell[0]].color = self.CELL_COLOR
-
-            x = self.cells[cell[1]][cell[0]].x
-            y = self.cells[cell[1]][cell[0]].y
-            w = self.cells[cell[1]][cell[0]].width
-            h = self.cells[cell[1]][cell[0]].height
-            s = self.cells[cell[1]][cell[0]].shift
-            rect = pygame.Rect(x+s, y+s, w-2*s, h-2*s)
-            pygame.draw.rect(self.screen, (0, 0, 0), rect)
-            surface = pygame.Surface((w-s*2, h-s*2))
-            surface.fill((255, 255, 255))
-            surface.set_alpha(70)
-            self.screen.blit(surface, (x+s, y+s))
-
-        for cell in cells:
-            cell[0] += direction
-            self.cells[cell[1]][cell[0]].filled = True
-            self.cells[cell[1]][cell[0]].color = cell[2]
-
-    def __fall(self, cells):
-        for cell in cells:
-            self.cells[cell[1]][cell[0]].filled = False
-            self.cells[cell[1]][cell[0]].color = self.CELL_COLOR
-
-            x = self.cells[cell[1]][cell[0]].x
-            y = self.cells[cell[1]][cell[0]].y
-            w = self.cells[cell[1]][cell[0]].width
-            h = self.cells[cell[1]][cell[0]].height
-            s = self.cells[cell[1]][cell[0]].shift
-            rect = pygame.Rect(x+s, y+s, w-2*s, h-2*s)
-            pygame.draw.rect(self.screen, (0, 0, 0), rect)
-            surface = pygame.Surface((w-s*2, h-s*2))
-            surface.fill((255, 255, 255))
-            surface.set_alpha(70)
-            self.screen.blit(surface, (x+s, y+s))
-
         
-        for cell in cells:
-            cell[1] += 1
-            self.cells[cell[1]][cell[0]].filled = True
-            self.cells[cell[1]][cell[0]].color = cell[2]
+        for x, y, color in self.fallingCells:
+            self.cells[y][x].on(self.screen, color)
 
     def __isEmptyBellow(self, x, y):
         y = y+1
@@ -115,6 +62,78 @@ class Application:
                 return False
         return True
     
+    def __offCells(self, cells):
+        for cell in cells:
+            self.cells[cell[1]][cell[0]].off(self.screen)
+            x = self.cells[cell[1]][cell[0]].x
+            y = self.cells[cell[1]][cell[0]].y
+            s = self.cells[cell[1]][cell[0]].shift
+            self.screen.blit(self.surfaces[cell[1]][cell[0]], (x+s, y+s))
+
+    def __fall(self, cells):
+        self.__offCells(cells)
+
+        for cell in cells:
+            cell[1] += 1
+            self.cells[cell[1]][cell[0]].on(self.screen, self.figureCellColor)
+
+    def __checkLineFill(self):
+        lst = []
+        for j, line in enumerate(self.cells):
+            isLineFilled = True
+            for cell in line:
+                if not cell.glowing:
+                    isLineFilled = False
+                    break
+            if isLineFilled:
+                lst.append(j)
+        
+        return lst
+    
+    def __isLineFalling(self, j, filledLines):
+        for l in filledLines:
+            if l < j or j >= self.height:
+                return False
+        return True
+
+    def fallUpdate(self):
+        falling = True
+        for (x, y, _) in self.fallingCells:
+            if self.__isEmptyBellow(x, y):
+                if y < self.height - 1:
+                    continue
+            falling = False
+            break
+
+        if not falling: 
+            self.fixedCells += self.fallingCells
+            self.fallingCells= []
+
+            filledLines = self.__checkLineFill()
+            print(filledLines)
+            if len(filledLines) != 0:
+                for j in filledLines:
+                    for i, cell in enumerate(self.cells[j]):
+                        print(i, j)
+                        print(self.fixedCells)
+                        self.fixedCells.remove([i, j, self.figureCellColor])
+                        # cell.filled = False
+                        # cell.color = self.CELL_COLOR
+
+                        # rect = pygame.Rect(cell.x+cell.shift, cell.y+cell.shift, cell.width-2*cell.shift, cell.height-2*cell.shift)
+                        # pygame.draw.rect(self.screen, (0, 0, 0), rect)
+                        cell.off(self.screen)
+                        # surface = pygame.Surface((cell.width-cell.shift*2, cell.height-cell.shift*2))
+                        # surface.fill((255, 255, 255))
+                        # surface.set_alpha(70)
+                        self.screen.blit(self.surfaces[j][i], (cell.x+cell.shift, cell.y+cell.shift))
+
+                    self.__fall([cell for cell in self.fixedCells if self.__isLineFalling(cell[1], filledLines) ])
+
+            self.createNewFigure()
+        else:
+            self.__fall(self.fallingCells)
+
     def __isEmptySide(self, x, y, direction):
         x = x + direction
         for cell in self.fixedCells:
@@ -122,60 +141,12 @@ class Application:
                 return False
         return True
     
-    def __checkLineFill(self):
-        lst = []
-        for j, line in enumerate(self.cells[::-1]):
-            isLineFilled = True
-            for cell in line:
-                if not cell.filled:
-                    isLineFilled = False
-                    break
-            if isLineFilled:
-                lst.append(self.HEIGHT - j - 1)
-        
-        return lst
-    
-    def __isLineFalling(self, j, filledLines):
-        for l in filledLines:
-            if l < j or j >= self.HEIGHT:
-                return False
-        return True
-    
-    def fallUpdate(self):
-        falling = True
-        for (x, y, _) in self.fallingCells:
-            if self.__isEmptyBellow(x, y):
-                if y < self.HEIGHT - 1:
-                    continue
-            falling = False
-            break
+    def __shift(self, cells, direction):
+        self.__offCells(cells)
 
-        if not falling:           
-            self.fixedCells += self.fallingCells
-            self.fallingCells= []
-
-            filledLines = self.__checkLineFill()
-            print(filledLines)
-
-            if len(filledLines) != 0:
-                for j in filledLines:
-                    for i, cell in enumerate(self.cells[j]):
-                        self.fixedCells.remove([i, j, cell.color])
-                        cell.filled = False
-                        cell.color = self.CELL_COLOR
-
-                        rect = pygame.Rect(cell.x+cell.shift, cell.y+cell.shift, cell.width-2*cell.shift, cell.height-2*cell.shift)
-                        pygame.draw.rect(self.screen, (0, 0, 0), rect)
-                        surface = pygame.Surface((cell.width-cell.shift*2, cell.height-cell.shift*2))
-                        surface.fill((255, 255, 255))
-                        surface.set_alpha(70)
-                        self.screen.blit(surface, (cell.x+cell.shift, cell.y+cell.shift))
-
-                self.__fall([cell for cell in self.fixedCells if self.__isLineFalling(cell[1], filledLines) ])
-
-            self.createNewFigure()
-        else:
-            self.__fall(self.fallingCells)
+        for cell in cells:
+            cell[0] += direction
+            self.cells[cell[1]][cell[0]].on(self.screen, self.figureCellColor)
 
 
     def shiftUpdate(self, direction):
@@ -186,7 +157,7 @@ class Application:
         for (x, y, _) in self.fallingCells:
             if self.__isEmptySide(x, y, direction):
                 if direction == 1:
-                    if x < self.WIDTH - 1:
+                    if x < self.width - 1:
                         continue
                 elif direction == -1:
                     if x > 0:
@@ -197,6 +168,3 @@ class Application:
         
         if shifting:
             self.__shift(self.fallingCells, direction)
-        
-
-        

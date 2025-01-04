@@ -51,4 +51,5 @@ while True:
         #     print(block.x, block.y)
         # print()
     
+    App.drawScreen()
     pygame.display.flip()

@@ -5,7 +5,7 @@ from scipy.stats import multinomial
 from numpy import where
 
 class FigureFabric:
-    def __init__(self, m, n, color=(246, 33, 33), p=[1/1 for i in range(1)], i=0):
+    def __init__(self, m, n, color=(246, 33, 33), p=[1/4 for i in range(4)], i=0):
         self.m = m
         self.n = n
         self.p = p
@@ -50,13 +50,6 @@ class FigureFabric:
             res.append([self.n-1, self.m+1, self.color])
             res.append([self.n+1, self.m+1, self.color])
             res.append([self.n, self.m, self.color])
-        elif self.i == 4:
-            #   x x
-            # x x
-            res.append([self.n, self.m+1, self.color])
-            res.append([self.n+1, self.m+1, self.color])
-            res.append([self.n+1, self.m, self.color])
-            res.append([self.n+2, self.m, self.color])
         
         self.i = self.__getFigure()
         return res
