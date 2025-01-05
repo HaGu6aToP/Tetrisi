@@ -78,7 +78,6 @@ class Application:
             self.cells[cell[1]][cell[0]].on(self.screen, self.figureCellColor)
 
     def __checkLineFill(self):
-        lst = []
         for j, line in enumerate(self.cells):
             isLineFilled = True
             for cell in line:
@@ -86,14 +85,13 @@ class Application:
                     isLineFilled = False
                     break
             if isLineFilled:
-                lst.append(j)
+                return (True, j)
         
-        return lst
+        return (False, )
     
     def __isLineFalling(self, j, filledLines):
-        for l in filledLines:
-            if l < j or j >= self.height:
-                return False
+        if filledLines < j or j >= self.height:
+            return False
         return True
 
     def fallUpdate(self):
@@ -111,24 +109,36 @@ class Application:
 
             filledLines = self.__checkLineFill()
             print(filledLines)
-            if len(filledLines) != 0:
-                for j in filledLines:
+            # if len(filledLines) != 0:
+            #     for j in filledLines:
+            #         for i, cell in enumerate(self.cells[j]):
+            #             # print(i, j)
+            #             # print(self.fixedCells)
+            #             self.fixedCells.remove([i, j, self.figureCellColor])
+            #             # cell.filled = False
+            #             # cell.color = self.CELL_COLOR
+
+            #             # rect = pygame.Rect(cell.x+cell.shift, cell.y+cell.shift, cell.width-2*cell.shift, cell.height-2*cell.shift)
+            #             # pygame.draw.rect(self.screen, (0, 0, 0), rect)
+            #             cell.off(self.screen)
+            #             # surface = pygame.Surface((cell.width-cell.shift*2, cell.height-cell.shift*2))
+            #             # surface.fill((255, 255, 255))
+            #             # surface.set_alpha(70)
+            #             self.screen.blit(self.surfaces[j][i], (cell.x+cell.shift, cell.y+cell.shift))
+
+            #         # self.__fall([cell for cell in self.fixedCells if self.__isLineFalling(cell[1], filledLines) ])
+            
+            print(filledLines)
+            if filledLines[0]:
+                while filledLines[0]:
+                    j = filledLines[1]
                     for i, cell in enumerate(self.cells[j]):
-                        print(i, j)
-                        print(self.fixedCells)
                         self.fixedCells.remove([i, j, self.figureCellColor])
-                        # cell.filled = False
-                        # cell.color = self.CELL_COLOR
-
-                        # rect = pygame.Rect(cell.x+cell.shift, cell.y+cell.shift, cell.width-2*cell.shift, cell.height-2*cell.shift)
-                        # pygame.draw.rect(self.screen, (0, 0, 0), rect)
                         cell.off(self.screen)
-                        # surface = pygame.Surface((cell.width-cell.shift*2, cell.height-cell.shift*2))
-                        # surface.fill((255, 255, 255))
-                        # surface.set_alpha(70)
                         self.screen.blit(self.surfaces[j][i], (cell.x+cell.shift, cell.y+cell.shift))
-
-                    self.__fall([cell for cell in self.fixedCells if self.__isLineFalling(cell[1], filledLines) ])
+                    # print([cell for cell in self.fixedCells if self.__isLineFalling(cell[1], filledLines[1]) ])
+                    self.__fall([cell for cell in self.fixedCells if self.__isLineFalling(cell[1], filledLines[1]) ])
+                    filledLines = self.__checkLineFill()
 
             self.createNewFigure()
         else:
