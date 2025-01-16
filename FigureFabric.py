@@ -5,7 +5,7 @@ from scipy.stats import multinomial
 from numpy import where
 
 class FigureFabric:
-    def __init__(self, m, n, color=(246, 33, 33), p=[1/1 for i in range(1)], i=0):
+    def __init__(self, m, n, color=(246, 33, 33), p=[1/5 for i in range(5)], i=0):
         self.m = m
         self.n = n
         self.p = p

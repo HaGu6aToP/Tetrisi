@@ -1,6 +1,7 @@
 import pygame
 from Cell import Cell
 from FigureFabric import FigureFabric
+import random
 
 class Application:
     def __init__(self, width=10, height=20, squareSide=30, shift=7, xLeft=50, yTop=50, screenWidth=1000, screenHeight=800, cellColor=(255, 255, 255), figureCellColor=(246, 33, 33)):
@@ -49,7 +50,12 @@ class Application:
         self.__drawGrid()
         self.__drawScorePanel()
 
-    def createNewFigure(self):
+    def createNewFigure(self, mode='default'):
+        if mode=='default':
+            self.FF.color = (246, 33, 33)
+        elif mode=='random':
+            self.FF.color = tuple(random.randint(0, 256) for i in range(3))
+
         self.fallingCells = self.FF.next()
         
         for x, y, color in self.fallingCells:
@@ -75,7 +81,7 @@ class Application:
 
         for cell in cells:
             cell[1] += 1
-            self.cells[cell[1]][cell[0]].on(self.screen, self.figureCellColor)
+            self.cells[cell[1]][cell[0]].on(self.screen, cell[2])
 
     def __checkLineFill(self):
         for j, line in enumerate(self.cells):
@@ -108,39 +114,18 @@ class Application:
             self.fallingCells= []
 
             filledLines = self.__checkLineFill()
-            print(filledLines)
-            # if len(filledLines) != 0:
-            #     for j in filledLines:
-            #         for i, cell in enumerate(self.cells[j]):
-            #             # print(i, j)
-            #             # print(self.fixedCells)
-            #             self.fixedCells.remove([i, j, self.figureCellColor])
-            #             # cell.filled = False
-            #             # cell.color = self.CELL_COLOR
 
-            #             # rect = pygame.Rect(cell.x+cell.shift, cell.y+cell.shift, cell.width-2*cell.shift, cell.height-2*cell.shift)
-            #             # pygame.draw.rect(self.screen, (0, 0, 0), rect)
-            #             cell.off(self.screen)
-            #             # surface = pygame.Surface((cell.width-cell.shift*2, cell.height-cell.shift*2))
-            #             # surface.fill((255, 255, 255))
-            #             # surface.set_alpha(70)
-            #             self.screen.blit(self.surfaces[j][i], (cell.x+cell.shift, cell.y+cell.shift))
-
-            #         # self.__fall([cell for cell in self.fixedCells if self.__isLineFalling(cell[1], filledLines) ])
-            
-            print(filledLines)
             if filledLines[0]:
                 while filledLines[0]:
                     j = filledLines[1]
                     for i, cell in enumerate(self.cells[j]):
-                        self.fixedCells.remove([i, j, self.figureCellColor])
+                        self.fixedCells.remove([i, j, cell.color])
                         cell.off(self.screen)
                         self.screen.blit(self.surfaces[j][i], (cell.x+cell.shift, cell.y+cell.shift))
-                    # print([cell for cell in self.fixedCells if self.__isLineFalling(cell[1], filledLines[1]) ])
                     self.__fall([cell for cell in self.fixedCells if self.__isLineFalling(cell[1], filledLines[1]) ])
                     filledLines = self.__checkLineFill()
 
-            self.createNewFigure()
+            self.createNewFigure('random')
         else:
             self.__fall(self.fallingCells)
 
@@ -156,7 +141,7 @@ class Application:
 
         for cell in cells:
             cell[0] += direction
-            self.cells[cell[1]][cell[0]].on(self.screen, self.figureCellColor)
+            self.cells[cell[1]][cell[0]].on(self.screen, cell[2])
 
 
     def shiftUpdate(self, direction):
