@@ -173,9 +173,52 @@ void real_cords_to_screen_cords(WINDOW *win, float *ex, float *ey, float *input,
     x = cblas_sdot(3, input, 1, ex, 1);
     y = cblas_sdot(3, input, 1, ey, 1);
 
-    // getmaxyx(win, *ix, *iy);
-    // *ix /= 2;
-    // *iy /= 2;
+    getmaxyx(win, *iy, *ix);
+    *ix /= 2;
+    *iy /= 2;
+    // *ix = 0;
+    // *iy = 0;
     *ix += xscale * ((int)round(x)) / LETTER_SCALE;
     *iy += ((int)round(y)) / LETTER_SCALE;
+}
+
+void rotate_screen(float *ex, float *ey, float *A)
+{
+    float resx[4];
+    float resy[4];
+    int i;
+
+    cblas_sgemv(
+        CblasRowMajor,
+        CblasNoTrans,
+        4, 4,
+        1.0F,
+        A,
+        4,
+        ex,
+        1,
+        0.0F,
+        resx,
+        1
+    );
+
+    cblas_sgemv(
+        CblasRowMajor,
+        CblasNoTrans,
+        4, 4,
+        1.0F,
+        A,
+        4,
+        ey,
+        1,
+        0.0F,
+        resy,
+        1
+    );
+
+    for(i = 0; i < 3; ++i){
+        ex[i] = resx[i];
+        ey[i] = resy[i];
+    }
+
 }
