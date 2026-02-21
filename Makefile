@@ -2,11 +2,11 @@ CC     := gcc
 CFLAGS := -O0
 LFLAGS := -omain -lncurses -lopenblas -lm 
 
-main: main.o utils.o
-	$(CC) main.o utils.o $(LFLAGS)
+test: main.o utils.o test.o
+	$(CC) main.o test.o utils.o $(LFLAGS)
 
-main.o: main.c
-	$(CC) main.c $(CFLAGS) -c
+main.o test.o: main.c test.c
+	$(CC) main.c test.c $(CFLAGS) -c
 
 utils.o: utils.c
 	$(CC) $^ $(CFLAGS) -c

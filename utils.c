@@ -5,9 +5,6 @@
 
 #define draw_line_bresenham(win, x0, y0, x1, y1) draw_segment(win, x0, y0, x1, y1);
 
-/* Letter scale */
-int LETTER_SCALE = 2;
-
 float Q_rsqrt(float number)
 {
     long i;
@@ -165,7 +162,7 @@ void draw_segment(WINDOW *win, int x0, int y0, int x1, int y1)
     }
 }
 
-void real_cords_to_screen_cords(WINDOW *win, float *ex, float *ey, float *input, int *ix, int *iy, int xscale)
+void real_cords_to_screen_cords(WINDOW *win, float *ex, float *ey, float *input, int *ipoint, int xscale, float letter_scale)
 {
     /* Map float cords in world basis to screen basis cords */
     float x, y;
@@ -173,13 +170,13 @@ void real_cords_to_screen_cords(WINDOW *win, float *ex, float *ey, float *input,
     x = cblas_sdot(3, input, 1, ex, 1);
     y = cblas_sdot(3, input, 1, ey, 1);
 
-    getmaxyx(win, *iy, *ix);
-    *ix /= 2;
-    *iy /= 2;
+    getmaxyx(win, ipoint[1], ipoint[0]);
+    ipoint[0] /= 2;
+    ipoint[1] /= 2;
     // *ix = 0;
     // *iy = 0;
-    *ix += xscale * ((int)round(x)) / LETTER_SCALE;
-    *iy += ((int)round(y)) / LETTER_SCALE;
+    ipoint[0] += xscale * ((int)round(x) / letter_scale);
+    ipoint[1] += ((int)round(y) / letter_scale);
 }
 
 void rotate_screen(float *ex, float *ey, float *A)
@@ -221,4 +218,25 @@ void rotate_screen(float *ex, float *ey, float *A)
         ey[i] = resy[i];
     }
 
+}
+
+
+void draw_figure(WINDOW *win, int *data, int n)
+{
+    switch(n) {
+        case 2:
+            draw_segment(win, data[0], data[1], data[2], data[3]);
+            break;
+        case 3:
+            draw_segment(win, data[0], data[1], data[2], data[3]);
+            draw_segment(win, data[2], data[3], data[4], data[5]);
+            draw_segment(win, data[0], data[1], data[4], data[5]);
+            break;
+        case 4:
+            draw_segment(win, data[0], data[1], data[2], data[3]);
+            draw_segment(win, data[2], data[3], data[4], data[5]);
+            draw_segment(win, data[4], data[5], data[6], data[7]);
+            draw_segment(win, data[0], data[1], data[6], data[7]);
+            break;
+    }
 }
