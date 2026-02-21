@@ -24,3 +24,26 @@ void draw_figure(
     int *data,        /* Row style data of figures points */
     int n               /* Amount of points belongs to figure */
 );
+
+
+void draw_segment_z(
+    WINDOW *win,
+    float *point1,
+    float *point2,
+    float *ex,
+    float *ey,
+    float *normal,
+    float **z_buffer,
+    int xscale, float letter_scale
+);
+
+void fill_triangle_z(WINDOW *win, 
+    float *point0,
+    float *point1,
+    float *point2,
+    float *ex,
+    float *ey,
+    float *normal,
+    float **z_buffer,
+    int xscale, float letter_scale
+);

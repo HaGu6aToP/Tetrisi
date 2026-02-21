@@ -5,6 +5,9 @@
 
 #define draw_line_bresenham(win, x0, y0, x1, y1) draw_segment(win, x0, y0, x1, y1);
 
+void swap(int *a, int *b) { int t = *a; *a = *b; *b = t; }
+void swapf(float *a, float *b) { float t = *a; *a = *b; *b = t; }
+
 float Q_rsqrt(float number)
 {
     long i;
@@ -224,4 +227,157 @@ void draw_figure(WINDOW *win, int *data, int n)
             draw_segment(win, data[0], data[1], data[6], data[7]);
             break;
     }
+}
+
+
+void draw_segment_z(
+    WINDOW *win,
+    float *point0,
+    float *point1,
+    float *ex,
+    float *ey,
+    float *normal,
+    float **z_buffer,
+    int xscale, float letter_scale
+)
+{
+    int x0, y0, x1, y1;
+    float z0, z1;
+    int row, col;
+    int dx, dy;
+    int sx, sy;
+    int err, e2;
+    int steps;
+    int current_step;
+    float t, cz;
+
+    getmaxyx(win, row, col);
+
+    x0 = x1 = col / 2;
+    y0 = y1 = row / 2;
+
+    x0 += xscale * ((int)round(cblas_sdot(3, point0, 1, ex, 1)) / letter_scale);
+    x1 += xscale * ((int)round(cblas_sdot(3, point1, 1, ex, 1)) / letter_scale);
+
+    y0 += (int)round(cblas_sdot(3, point0, 1, ey, 1)) / letter_scale;
+    y1 += (int)round(cblas_sdot(3, point1, 1, ey, 1)) / letter_scale;
+
+    z0 = cblas_sdot(3, point0, 1, normal, 1);
+    z1 = cblas_sdot(3, point1, 1, normal, 1);
+
+    // draw_segment(win, x0, y0, x1, y1);
+
+    dx = abs(x1 - x0);
+    dy = -abs(y1 - y0);
+    sx = x0 < x1 ? 1 : -1;
+    sy = y0 < y1 ? 1 : -1;
+    err = dx + dy;
+    e2;
+
+    steps = (abs(dx) > abs(dy) ? abs(dx) : abs(dy));
+    current_step = 0;
+
+    while (1) {
+        t = (steps == 0) ? 1.0f : (float)current_step / steps;
+        cz = z0 + t * (z1 - z0);
+
+        if (y0 >= 0 && y0 < row && x0 >= 0 && x0 < col) {
+            if (-20 <= cz && (cz-2) <= z_buffer[y0][x0] + 8) {
+                mvwprintw(win, 0, 0, "OK");
+                mvwaddch(win, y0, x0, '*');
+                z_buffer[y0][x0] = cz;
+            } 
+        }
+
+        if (x0 == x1 && y0 == y1) break;
+        e2 = 2 * err;
+        if (e2 >= dy) { err += dy; x0 += sx; }
+        if (e2 <= dx) { err += dx; y0 += sy; }
+    }
+    
+}
+
+void fill_triangle_z(WINDOW *win, 
+    float *point0,
+    float *point1,
+    float *point2,
+    float *ex,
+    float *ey,
+    float *normal,
+    float **z_buffer,
+    int xscale, float letter_scale
+)
+{
+    int x, y;
+    int x0, y0, x1, y1, x2, y2;
+    int ax, bx;
+    float z0, z1, z2;
+    float az, bz;
+    float t, current_z;
+    int row, col;
+    int total_height, segment_height;
+    int i, j;
+    bool second_half;
+    float alpha, beta;
+
+    // wattron(win, A_REVERSE);
+    getmaxyx(win, row, col);
+
+    x0 = x1 = x2 = col / 2;
+    y0 = y1 = y2 = row / 2;
+
+    x0 += xscale * ((int)round(cblas_sdot(3, point0, 1, ex, 1)) / letter_scale);
+    x1 += xscale * ((int)round(cblas_sdot(3, point1, 1, ex, 1)) / letter_scale);
+    x2 += xscale * ((int)round(cblas_sdot(3, point2, 1, ex, 1)) / letter_scale);
+
+    y0 += (int)round(cblas_sdot(3, point0, 1, ey, 1)) / letter_scale;
+    y1 += (int)round(cblas_sdot(3, point1, 1, ey, 1)) / letter_scale;
+    y2 += (int)round(cblas_sdot(3, point2, 1, ey, 1)) / letter_scale;
+
+    z0 = cblas_sdot(3, point0, 1, normal, 1);
+    z1 = cblas_sdot(3, point1, 1, normal, 1);
+    z2 = cblas_sdot(3, point2, 1, normal, 1);
+
+    if (y0 > y1) { swap(&x0, &x1); swap(&y0, &y1); swapf(&z0, &z1); }
+    if (y0 > y2) { swap(&x0, &x2); swap(&y0, &y2); swapf(&z0, &z2); }
+    if (y1 > y2) { swap(&x1, &x2); swap(&y1, &y2); swapf(&z1, &z2); }
+
+    total_height = y2 - y0;
+    if (total_height == 0) return;
+
+    i = 0;
+    for (i; i <= total_height; ++i) {
+        second_half = i > (y1 - y0) || y1 == y0;
+        segment_height = second_half ? (y2 - y1) : (y1 - y0);
+        if (segment_height == 0) segment_height = 1;
+
+        alpha = (float)i / total_height;
+        beta  = (float)(i - (second_half ? (y1 - y0) : 0)) / segment_height;
+        ax = x0 + (x2 - x0) * alpha;
+        az = z0 + (z2 - z0) * alpha;
+
+        bx = second_half ? x1 + (x2 - x1) * beta : x0 + (x1 - x0) * beta;
+        bz = second_half ? z1 + (z2 - z1) * beta : z0 + (z1 - z0) * beta;
+
+        if (ax > bx) { swap(&ax, &bx); swapf(&az, &bz); }
+
+        j = ax;
+        for (j; j <= bx; ++j) {
+            t = (ax == bx) ? 1.0f : (float)(j - ax) / (bx - ax);
+            current_z = az + (bz - az) * t;
+
+            // put_pixel_z(win, j, y0 + i, current_z, ch);
+            x = j;
+            y = y0 + i;
+
+            if (y >= 0 && y < row && x >= 0 && x < col) {
+                if (-20 <= current_z && current_z <= z_buffer[y][x]) {
+                    mvwprintw(win, 0, 0, "OK");
+                    mvwaddch(win, y, x, ' ');
+                    z_buffer[y][x] = current_z;
+                }
+            }
+        }
+    }
+    // wattroff(win, A_REVERSE);
 }
