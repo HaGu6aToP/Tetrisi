@@ -6,7 +6,7 @@
 
 // #define draw_segment_TEST
 // #define triangle_TEST
-#define rotating_triangle_TEST
+// #define rotating_triangle_TEST
 #define ALPHA 0.02454369260617026F /* pi/128 */
 
 int test()
@@ -18,7 +18,8 @@ int test()
 
     /* Screen basis */
     float gx[4] = {1, 0, 0, 1};
-    float gy[4] = {0, -1, 0, 1};
+    float gy[4] = {0, 1, 0, 1};
+    float bias[3] = {0, 0, 0};
 
     float R_z_plus[16] = {cos(ALPHA), -sin(ALPHA), 0, 0, sin(ALPHA), cos(ALPHA), 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
     float R_z_minus[16] = {cos(ALPHA), sin(ALPHA), 0, 0, -sin(ALPHA), cos(ALPHA), 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
@@ -95,13 +96,11 @@ int test()
         switch (c) {
             case 'q':
                 rotate_screen(gx, gy, R_z_minus);
-                mvprintw(0, 0, "%.2f %.2f %.2f %.2f\n", gx[0], gx[1], gx[2], gx[3]);
-                printw("%.2f %.2f %.2f %.2f\n", gy[0], gy[1], gy[2], gy[3]);
+                
                 break;
             case 'r':
                 rotate_screen(gx, gy, R_z_plus);
-                mvprintw(0, 0, "%.2f %.2f %.2f %.2f\n", gx[0], gx[1], gx[2], gx[3]);
-                printw("%.2f %.2f %.2f %.2f\n", gy[0], gy[1], gy[2], gy[3]);
+
                 break;
             case 'f':
                 letter_scale *= 0.9375;
@@ -109,37 +108,46 @@ int test()
             case 'b':
                 letter_scale /= 0.9375;
                 break;
+            case KEY_LEFT:
+                bias[0] -= 1;
+                break;
+            case KEY_RIGHT:
+                bias[0] += 1;
+                break;
+                
 
         }
 
         clear();
-        real_cords_to_screen_cords(stdscr, gx, gy, point1, &point[0], 2, letter_scale);
-        real_cords_to_screen_cords(stdscr, gx, gy, point2, &point[2], 2, letter_scale);
-        real_cords_to_screen_cords(stdscr, gx, gy, point3, &point[4], 2, letter_scale);
+        real_cords_to_screen_cords(stdscr, gx, gy, point1, bias, &point[0], 2, letter_scale);
+        real_cords_to_screen_cords(stdscr, gx, gy, point2, bias, &point[2], 2, letter_scale);
+        real_cords_to_screen_cords(stdscr, gx, gy, point3, bias, &point[4], 2, letter_scale);
 
         draw_figure(stdscr, point, 3);
 
-        real_cords_to_screen_cords(stdscr, gx, gy, &rectangle[0], &point[0], 2, letter_scale);
-        real_cords_to_screen_cords(stdscr, gx, gy, &rectangle[3], &point[2], 2, letter_scale);
-        real_cords_to_screen_cords(stdscr, gx, gy, &rectangle[6], &point[4], 2, letter_scale);
-        real_cords_to_screen_cords(stdscr, gx, gy, &rectangle[9], &point[6], 2, letter_scale);
+        // real_cords_to_screen_cords(stdscr, gx, gy, &rectangle[0], &point[0], 2, letter_scale);
+        // real_cords_to_screen_cords(stdscr, gx, gy, &rectangle[3], &point[2], 2, letter_scale);
+        // real_cords_to_screen_cords(stdscr, gx, gy, &rectangle[6], &point[4], 2, letter_scale);
+        // real_cords_to_screen_cords(stdscr, gx, gy, &rectangle[9], &point[6], 2, letter_scale);
 
-        draw_figure(stdscr, point, 4);
+        // draw_figure(stdscr, point, 4);
 
-        real_cords_to_screen_cords(stdscr, gx, gy, &paralel_lines[0], &point[0], 2, letter_scale);
-        real_cords_to_screen_cords(stdscr, gx, gy, &paralel_lines[3], &point[2], 2, letter_scale);
-        real_cords_to_screen_cords(stdscr, gx, gy, &paralel_lines[6], &point[4], 2, letter_scale);
-        real_cords_to_screen_cords(stdscr, gx, gy, &paralel_lines[9], &point[6], 2, letter_scale);
+        // real_cords_to_screen_cords(stdscr, gx, gy, &paralel_lines[0], bias, &point[0], 2, letter_scale);
+        // real_cords_to_screen_cords(stdscr, gx, gy, &paralel_lines[3], bias, &point[2], 2, letter_scale);
+        // real_cords_to_screen_cords(stdscr, gx, gy, &paralel_lines[6], bias, &point[4], 2, letter_scale);
+        // real_cords_to_screen_cords(stdscr, gx, gy, &paralel_lines[9], bias, &point[6], 2, letter_scale);
 
-        attron(A_REVERSE);
-        draw_figure(stdscr, &point[0], 2);
-        draw_figure(stdscr, &point[4], 2);
-        attroff(A_REVERSE);
+        // attron(A_REVERSE);
+        // draw_figure(stdscr, &point[0], 2);
+        // draw_figure(stdscr, &point[4], 2);
+        // attroff(A_REVERSE);
 
         // draw_segment(stdscr, x0, y0, x1, y1);
         // draw_segment(stdscr, x1, y1, x2, y2);
         // draw_segment(stdscr, x0, y0, x2, y2);  
         // printw("%c", c);
+        mvprintw(0, 0, "%.2f %.2f %.2f %.2f\n", gx[0], gx[1], gx[2], gx[3]);
+        printw("%.2f %.2f %.2f %.2f\n", gy[0], gy[1], gy[2], gy[3]);
         refresh();
     }
     #endif

@@ -162,13 +162,14 @@ void draw_segment(WINDOW *win, int x0, int y0, int x1, int y1)
     }
 }
 
-void real_cords_to_screen_cords(WINDOW *win, float *ex, float *ey, float *input, int *ipoint, int xscale, float letter_scale)
+void real_cords_to_screen_cords(WINDOW *win, float *ex, float *ey, float *bias, float *point, int *ipoint, int xscale, float letter_scale)
 {
     /* Map float cords in world basis to screen basis cords */
     float x, y;
+    float biased_point[3] = {point[0] - bias[0], point[1] - bias[1], point[2] - bias[2]};
 
-    x = cblas_sdot(3, input, 1, ex, 1);
-    y = cblas_sdot(3, input, 1, ey, 1);
+    x = cblas_sdot(3, biased_point, 1, ex, 1);
+    y = cblas_sdot(3, biased_point, 1, ey, 1);
 
     getmaxyx(win, ipoint[1], ipoint[0]);
     ipoint[0] /= 2;

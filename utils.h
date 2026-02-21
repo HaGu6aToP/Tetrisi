@@ -13,7 +13,7 @@ void draw_coordinate_system(
 
 void draw_segment(WINDOW *win, int x0, int y0, int x1, int y1);
 
-void real_cords_to_screen_cords(WINDOW *win, float *ex, float *ey, float *point, int *ipoint, int xscale, float letter_scale);
+void real_cords_to_screen_cords(WINDOW *win, float *ex, float *ey, float *bias ,float *point, int *ipoint, int xscale, float letter_scale);
 
 void rotate_screen(float *ex, float *ey, float *A);
 
