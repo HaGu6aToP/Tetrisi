@@ -162,14 +162,13 @@ void draw_segment(WINDOW *win, int x0, int y0, int x1, int y1)
     }
 }
 
-void real_cords_to_screen_cords(WINDOW *win, float *ex, float *ey, float *bias, float *point, int *ipoint, int xscale, float letter_scale)
+void real_cords_to_screen_cords(WINDOW *win, float *ex, float *ey, float *point, int *ipoint, int xscale, float letter_scale)
 {
     /* Map float cords in world basis to screen basis cords */
     float x, y;
-    float biased_point[3] = {point[0] - bias[0], point[1] - bias[1], point[2] - bias[2]};
 
-    x = cblas_sdot(3, biased_point, 1, ex, 1);
-    y = cblas_sdot(3, biased_point, 1, ey, 1);
+    x = cblas_sdot(3, point, 1, ex, 1);
+    y = cblas_sdot(3, point, 1, ey, 1);
 
     getmaxyx(win, ipoint[1], ipoint[0]);
     ipoint[0] /= 2;
@@ -180,10 +179,9 @@ void real_cords_to_screen_cords(WINDOW *win, float *ex, float *ey, float *bias, 
     ipoint[1] += ((int)round(y) / letter_scale);
 }
 
-void rotate_screen(float *ex, float *ey, float *A)
+void apply_map(float *v, float *A)
 {
-    float resx[4];
-    float resy[4];
+    float res[4];
     int i;
 
     cblas_sgemv(
@@ -193,30 +191,16 @@ void rotate_screen(float *ex, float *ey, float *A)
         1.0F,
         A,
         4,
-        ex,
+        v,
         1,
         0.0F,
-        resx,
+        res,
         1
     );
 
-    cblas_sgemv(
-        CblasRowMajor,
-        CblasNoTrans,
-        4, 4,
-        1.0F,
-        A,
-        4,
-        ey,
-        1,
-        0.0F,
-        resy,
-        1
-    );
 
     for(i = 0; i < 3; ++i){
-        ex[i] = resx[i];
-        ey[i] = resy[i];
+        v[i] = res[i];
     }
 
 }
